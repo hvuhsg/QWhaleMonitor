@@ -2,3 +2,4 @@ fastapi
 requests
 tinydb
 uvicorn[standard]
+notifiers

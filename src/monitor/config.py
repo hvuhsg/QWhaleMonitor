@@ -1,3 +1,3 @@
 from datetime import timedelta
 
-SCAN_INTERVAL = timedelta(seconds=30)
+SCAN_INTERVAL = timedelta(minutes=1)

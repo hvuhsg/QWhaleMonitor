@@ -2,10 +2,11 @@ from typing import Union
 from time import sleep, time
 import traceback
 from threading import Thread
+from concurrent.futures import ThreadPoolExecutor
 
 import requests
 from requests import ConnectTimeout, ConnectionError
-from concurrent.futures import ThreadPoolExecutor
+from notifiers import get_notifier
 
 from db import DB
 from .config import SCAN_INTERVAL
@@ -70,7 +71,7 @@ class Scanner(Thread):
             else:
                 diff = {}
                 for k, v in old_status.items():
-                    if current_status[k] != v:
+                    if current_status[k] != v and k in notify_fields:
                         diff[k] = {"from": v, "to": current_status[k]}
                 success_to_success = True
 
@@ -91,19 +92,33 @@ class Scanner(Thread):
 
         return diff if need_notify else None
 
+    def _send_notification(self, site, notification):
+        p = get_notifier('pushover')
+        p.notify(
+            user="ufg86adtpmq93zk9ue8d956rd7fjvc",
+            token="a3domhu4ph84tnezcpka5umx7jvfy2",
+            message=f"{notification}",
+            url=site["url"],
+            priority=1
+        )
+
     def _handle_site_scanning(self, site):
         try:
             status = self._scan_site(site)
             notification = self._need_to_notify(site, status)
+            print("Need notification", notification is not None)
             if notification is not None:
-                print(site["name"], notification)  # TODO: notify
+                print("Send notification")
+                self._send_notification(site, notification)
             self._update_site_status(site, status)
         except Exception:
             traceback.print_exc()
 
     def round(self):
+        print("Start round")
         unscanned_sites = self._get_sites_for_scan()
         for site in unscanned_sites:
+            print(f"Scanning site {site['url']}")
             self.__thread_pool.submit(self._handle_site_scanning, site)
 
     def _loop(self):

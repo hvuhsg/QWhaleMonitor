@@ -42,7 +42,6 @@ def add_site(
         site_name: str,
         site_url: str,
         timeout: float = None,
-        filters: List[str] = None,
         scan_interval: float = None,
         token=Depends(verify_token),
 ) -> int:
@@ -61,7 +60,7 @@ def add_site(
         site_name,
         site_url,
         timeout=timeout,
-        filters=filters,
+        filters=None,
         scan_interval=scan_interval
     )
     return {"site_id": site_id}

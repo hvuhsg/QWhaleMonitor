@@ -40,7 +40,7 @@ class DB:
         if timeout is None:
             timeout = SITE_SCAN_TIMEOUT
         if filters is None:
-            filters = ["connection_error_to_connected", "status_code"]
+            filters = ["connection_error_to_connected", "status_code", "elapsed"]
         if scan_interval is None:
             scan_interval = SCAN_INTERVAL
         else:
