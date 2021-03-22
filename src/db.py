@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 from tinydb import TinyDB, Query, where
 from tinydb.table import Document
 
-from config import SITE_SCAN_TIMEOUT
+from config import SITE_SCAN_TIMEOUT, SCAN_INTERVAL
 
 
 class DB:
@@ -25,10 +25,11 @@ class DB:
 
         DB._instance = self
 
-    def add_site(self, site_name, site_url, timeout, filters, **kwargs) -> int:
+    def add_site(self, site_name, site_url, timeout, filters, scan_interval, **kwargs) -> int:
         """
         Add site to db
 
+        :param scan_interval: Every scan interval time the site will be scanned
         :param filters: The changes on the site that will trigger notification
         :param timeout: timeout of the http request
         :param site_name: The website name for notifications
@@ -40,6 +41,10 @@ class DB:
             timeout = SITE_SCAN_TIMEOUT
         if filters is None:
             filters = ["connection_error_to_connected", "status_code"]
+        if scan_interval is None:
+            scan_interval = SCAN_INTERVAL
+        else:
+            scan_interval = max(SCAN_INTERVAL, timedelta(minutes=scan_interval))
 
         private_site_args = {
             "registration_date": datetime.utcnow().isoformat(),
@@ -47,7 +52,7 @@ class DB:
             "last_scan_date": None,
             "timeout": timeout,
             "status": None,
-            "interval": timedelta(minutes=1).total_seconds(),
+            "interval": scan_interval,
             "notify_on": filters,
 
             # Notify on option values

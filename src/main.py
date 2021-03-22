@@ -43,9 +43,27 @@ def add_site(
         site_url: str,
         timeout: float = None,
         filters: List[str] = None,
+        scan_interval: float = None,
         token=Depends(verify_token),
 ) -> int:
-    site_id = DB.get_instance().add_site(site_name, site_url, timeout=timeout, filters=filters)
+    """
+    Register new website to the system\n
+
+    :param site_name: The web site name\n
+    :param site_url: The website url including http / https\n
+    :param timeout: request timeout\n
+    :param filters: list of fields to notify if changing\n
+    :param scan_interval: website scanning interval\n
+    :param token: your system token\n
+    :return: {'site_id': <id>}\n
+    """
+    site_id = DB.get_instance().add_site(
+        site_name,
+        site_url,
+        timeout=timeout,
+        filters=filters,
+        scan_interval=scan_interval
+    )
     return {"site_id": site_id}
 
 
