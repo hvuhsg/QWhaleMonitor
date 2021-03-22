@@ -44,7 +44,7 @@ class DB:
         if scan_interval is None:
             scan_interval = SCAN_INTERVAL
         else:
-            scan_interval = max(SCAN_INTERVAL, timedelta(minutes=scan_interval))
+            scan_interval = max(SCAN_INTERVAL, timedelta(minutes=scan_interval)).total_seconds()
 
         private_site_args = {
             "registration_date": datetime.utcnow().isoformat(),
