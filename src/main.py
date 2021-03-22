@@ -30,7 +30,7 @@ def verify_token(token: str) -> str:
     return token
 
 
-def verify_site_id(site_id: int, token=Depends(verify_token)) -> int:
+def verify_site_id(site_id: str, token=Depends(verify_token)) -> int:
     connected_token = DB.get_instance().connected_token(site_id)
     if connected_token is None or connected_token != token:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="The site is not your's!")

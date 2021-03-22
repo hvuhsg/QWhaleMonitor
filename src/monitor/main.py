@@ -41,7 +41,7 @@ class Scanner(Thread):
         return status
 
     def _update_site_status(self, site, status: Status):
-        self.__db.update_site_status(site.doc_id, status.to_dict())
+        self.__db.update_site_status(site["_id"], status.to_dict())
 
     def _need_to_notify(self, site, status) -> Union[dict, None]:
         old_status = site["status"]

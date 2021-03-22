@@ -1,8 +1,7 @@
 from typing import List
 from datetime import datetime, timedelta
-
-from tinydb import TinyDB, Query, where
-from tinydb.table import Document
+from pymongo import MongoClient
+from bson.objectid import ObjectId
 
 from config import SITE_SCAN_TIMEOUT, SCAN_INTERVAL
 
@@ -19,13 +18,13 @@ class DB:
             raise TypeError("DB is singleton use DB.get_instance()")
 
         self.__db_file = file_name
-        self.__db = TinyDB(self.__db_file)
-        self.__sites = self.__db.table("sites")
-        self.__site_token_links = self.__db.table("site_token_links")
+        self.__db = MongoClient("mongodb://monitor:monitorpass@127.0.0.1:27017/Monitoring").get_database("Monitoring")
+        self.__sites = self.__db.get_collection("sites")
+        self.__site_token_links = self.__db.get_collection("site_token_links")
 
         DB._instance = self
 
-    def add_site(self, site_name, site_url, timeout, filters, scan_interval, **kwargs) -> int:
+    def add_site(self, site_name, site_url, timeout, filters, scan_interval, **kwargs) -> str:
         """
         Add site to db
 
@@ -70,9 +69,10 @@ class DB:
             # "elapsed"
         }
 
-        return self.__sites.insert(
+        object_id = self.__sites.insert_one(
             {"name": site_name, "url": site_url, **private_site_args, **kwargs}
-        )
+        ).inserted_id
+        return str(object_id)
 
     def disable_site(self, site_id) -> bool:
         """
@@ -82,33 +82,36 @@ class DB:
         :return: True for success and False for error
         """
 
-        return bool(self.__sites.update({"enable_scan": False}, doc_ids=[site_id]))
+        return bool(self.__sites.update_one({"_id": site_id}, {"$set": {"enable_scan": False}}))
 
-    def connect_site_to_token(self, site_id: int, token: str) -> bool:
+    def connect_site_to_token(self, site_id: str, token: str) -> bool:
         try:
-            self.__site_token_links.insert({"site_id": site_id, "token": token})
+            self.__site_token_links.insert_one({"site_id": ObjectId(site_id), "token": token})
         except (ValueError, RuntimeError):
             return False
         else:
             return True
 
-    def connected_token(self, site_id: int):
-        document = self.__site_token_links.search(where("site_id") == site_id)
+    def connected_token(self, site_id: str):
+        document = self.__site_token_links.find({"site_id": ObjectId(site_id)})
         if not document:
             return None
         return document["token"]
 
-    def get_unscanned_sites(self) -> List[Document]:
-        all_sites = self.__sites.all()
+    def get_unscanned_sites(self) -> List[dict]:
+        # TODO: find query
+        all_sites = self.__sites.find({"enable_scan": True})
         unscanned_sites = []
         for site in all_sites:
-            if site["last_scan_date"] is None and site["enable_scan"]:
+            if site["last_scan_date"] is None:
                 unscanned_sites.append(site)
                 continue
             if datetime.utcnow() - datetime.fromisoformat(site["last_scan_date"]) \
-                    > timedelta(seconds=site["interval"]) and site["enable_scan"]:
+                    > timedelta(seconds=site["interval"]):
                 unscanned_sites.append(site)
         return unscanned_sites
 
-    def update_site_status(self, site_id: int, status: dict) -> bool:
-        self.__sites.update({"status": status, "last_scan_date": datetime.utcnow().isoformat()}, doc_ids=[site_id])
+    def update_site_status(self, site_id: ObjectId, status: dict) -> bool:
+        self.__sites.update_one(
+            {"_id": ObjectId(site_id)}, {"$set": {"status": status, "last_scan_date": datetime.utcnow().isoformat()}}
+        )
