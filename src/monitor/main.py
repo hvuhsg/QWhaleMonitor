@@ -101,6 +101,11 @@ class Scanner(Thread):
             url=site["url"],
             priority=1
         )
+        p = get_notifier("slack")
+        p.notify(
+            webhook_url="https://hooks.slack.com/services/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",
+            message=f"{notification}\nurl: {site['url']}"
+        )
 
     def _handle_site_scanning(self, site):
         try:
