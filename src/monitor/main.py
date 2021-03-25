@@ -7,6 +7,7 @@ from concurrent.futures import ThreadPoolExecutor
 import requests
 from requests import ConnectTimeout, ConnectionError
 from notifiers import get_notifier
+from notifier_client import NotifierClient
 
 from db import DB
 from .config import SCAN_INTERVAL
@@ -106,6 +107,8 @@ class Scanner(Thread):
             webhook_url="https://hooks.slack.com/services/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",
             message=f"{notification}\nurl: {site['url']}"
         )
+        p = NotifierClient(app_token="app")
+        p.send_notification(user_token="6xrEemu8pqShpA", title="MonitorAlert", body=f"{notification}", url=site["url"])
 
     def _handle_site_scanning(self, site):
         try:

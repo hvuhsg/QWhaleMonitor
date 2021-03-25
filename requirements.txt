@@ -3,3 +3,4 @@ requests
 uvicorn[standard]
 notifiers
 pymongo
+NotifierClient
