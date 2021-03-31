@@ -32,7 +32,7 @@ async def login(request: Request):
     return await oauth.provider.authorize_redirect(request, redirect_uri)
 
 
-@provider_login_app.get('/auth')
+@provider_login_app.route('/auth')
 async def auth(request: Request):
     db = DB.get_instance()
 
@@ -51,7 +51,7 @@ async def auth(request: Request):
     return RedirectResponse(url='/')
 
 
-@provider_login_app.route("/logout")
+@provider_login_app.get("/logout")
 def logout(request: Request):
     request.session.clear()
     return RedirectResponse(url="/")
