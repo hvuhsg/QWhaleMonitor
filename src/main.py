@@ -69,3 +69,10 @@ def add_site(
 @app.delete("/site/{site_id}")
 def delete_site(token=Depends(verify_token), site_id=Depends(verify_site_id)):
     return {"deleted": DB.get_instance().disable_site(site_id)}
+
+
+@app.get("/sites")
+def get_sites(token: str = Depends(verify_token)):
+    db = DB.get_instance()
+    sites = db.get_sites_by_token(token)
+    return sites

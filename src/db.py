@@ -115,3 +115,12 @@ class DB:
         self.__sites.update_one(
             {"_id": ObjectId(site_id)}, {"$set": {"status": status, "last_scan_date": datetime.utcnow().isoformat()}}
         )
+
+    def get_sites_by_token(self, token: str):
+        token_site_links = self.__site_token_links.find({"token": token}, {"site_id": 1})
+        site_ids = [site["site_id"] for site in token_site_links]
+
+        def obj_id_to_str(site):
+            site["_id"] = str(site["_id"])
+            return site
+        return [obj_id_to_str(site) for site in self.__sites.find({"_id": {"$in": site_ids}})]
