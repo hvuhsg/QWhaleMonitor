@@ -43,7 +43,7 @@ def add_site(
         site_url: str,
         timeout: float = None,
         scan_interval: float = None,
-        token=Depends(verify_token),
+        token: str = Depends(verify_token),
 ) -> int:
     """
     Register new website to the system\n
@@ -56,13 +56,15 @@ def add_site(
     :param token: your system token\n
     :return: {'site_id': <id>}\n
     """
-    site_id = DB.get_instance().add_site(
+    db = DB.get_instance()
+    site_id = db.add_site(
         site_name,
         site_url,
         timeout=timeout,
         filters=None,
         scan_interval=scan_interval
     )
+    connected = db.connect_site_to_token(site_id, token)
     return {"site_id": site_id}
 
 
