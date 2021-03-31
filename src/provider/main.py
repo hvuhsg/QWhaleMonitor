@@ -51,7 +51,7 @@ async def auth(request: Request):
     return RedirectResponse(url='/')
 
 
-@provider_login_app.route("logout")
+@provider_login_app.route("/logout")
 def logout(request: Request):
     request.session.clear()
     return RedirectResponse(url="/")
