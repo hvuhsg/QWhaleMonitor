@@ -49,3 +49,9 @@ async def auth(request: Request):
 
     request.session["user"] = session_data
     return RedirectResponse(url='/')
+
+
+@provider_login_app.route("logout")
+def logout(request: Request):
+    request.session.clear()
+    return RedirectResponse(url="/")
