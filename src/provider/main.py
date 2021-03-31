@@ -6,7 +6,7 @@ from authlib.integrations.starlette_client import OAuth
 
 from db import DB
 
-provider_login_app = APIRouter()
+provider_login_app = APIRouter(tags=["auth"])
 
 config = Config(env_file=".env")
 oauth = OAuth(config)
