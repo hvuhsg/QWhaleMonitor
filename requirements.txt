@@ -5,3 +5,6 @@ notifiers
 pymongo
 NotifierClient
 authlib
+itsdangerous
+httpx
+aiofiles
