@@ -19,10 +19,19 @@ class DB:
 
         self.__db_file = file_name
         self.__db = MongoClient("mongodb://monitor:monitorpass@127.0.0.1:27017/Monitoring").get_database("Monitoring")
+        self.__users = self.__db.get_collection("users")
         self.__sites = self.__db.get_collection("sites")
         self.__site_token_links = self.__db.get_collection("site_token_links")
 
         DB._instance = self
+
+    def add_user(self, token: str, user_data: dict = None):
+        if user_data is None:
+            user_data = dict()
+        return self.__users.insert_one({"token": token, "user_data": user_data})
+
+    def user_exist(self, token: str):
+        return self.__users.find_one({"token": token}) is not None
 
     def add_site(self, site_name, site_url, timeout, filters, scan_interval, **kwargs) -> str:
         """

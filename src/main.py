@@ -1,11 +1,15 @@
 from typing import Optional, List
-from fastapi import FastAPI, Depends, HTTPException, status
+from fastapi import FastAPI, Depends, HTTPException, status, Request
+from starlette.middleware.sessions import SessionMiddleware
 
+from provider.main import provider_login_app
 from db import DB
 from config import DB_FILE_NAME
 from monitor.main import Scanner
 
 app = FastAPI()
+app.add_middleware(SessionMiddleware, secret_key="DFGsljncasd34598dkjs")
+app.include_router(provider_login_app)
 scanner = None
 
 
@@ -24,8 +28,13 @@ def shutdown():
     scanner.join()
 
 
-def verify_token(token: str) -> str:
-    if token != "HardCodedToken!":
+def verify_token(request: Request, token: str = None) -> str:
+    db = DB.get_instance()
+    if token is None and request.session.get("user", None) is None:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="You must specify token or valid session")
+    if token is None:
+        token = request.session.get("user")["token"]
+    if not db.user_exist(token):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid Token!")
     return token
 
