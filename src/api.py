@@ -1,5 +1,6 @@
 from pydantic import AnyHttpUrl
 from fastapi import APIRouter, Depends, HTTPException, status, Request
+from enum import Enum
 
 from db import DB
 
@@ -25,10 +26,28 @@ def verify_site_id(site_id: str, token=Depends(verify_token)) -> int:
     return site_id
 
 
+class Filter(str, Enum):
+    connection_error_to_connected = "connection_error_to_connected"
+    connection_error_to_connection_error = "connection_error_to_connection_error"
+    status_code = "status_code"
+    content_hash = "content_hash"
+    url = "url"
+    headers = "headers"
+    links = "links"
+    is_redirect = "is_redirect"
+    is_permanent_redirect = "is_permanent_redirect"
+    reason = "reason"
+    history = "history"
+    elapsed = "elapsed"
+
+
 @api_app.put("/site")
 def add_site(
         site_name: str,
         site_url: AnyHttpUrl,
+        filter1: Filter,
+        filter2: Filter = None,
+        filter3: Filter = None,
         timeout: float = None,
         scan_interval: float = None,
         token: str = Depends(verify_token),
@@ -45,11 +64,12 @@ def add_site(
     :return: {'site_id': <id>}\n
     """
     db = DB.get_instance()
+    filters = list(filter(lambda x: x is not None, [filter1, filter2, filter3]))
     site_id = db.add_site(
         site_name,
         site_url,
         timeout=timeout,
-        filters=None,
+        filters=filters,
         scan_interval=scan_interval
     )
     connected = db.connect_site_to_token(site_id, token)

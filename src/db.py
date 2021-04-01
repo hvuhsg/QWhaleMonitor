@@ -78,10 +78,11 @@ class DB:
             # "elapsed"
         }
 
-        object_id = self.__sites.insert_one(
-            {"name": site_name, "url": site_url, **private_site_args, **kwargs}
-        ).inserted_id
-        return str(object_id)
+        # object_id = self.__sites.insert_one(
+        #     {"name": site_name, "url": site_url, **private_site_args, **kwargs}
+        # ).inserted_id
+        # return str(object_id)
+        return "Not saved"
 
     def disable_site(self, site_id) -> bool:
         """
