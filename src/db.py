@@ -62,27 +62,12 @@ class DB:
             "status": None,
             "interval": scan_interval,
             "notify_on": filters,
-
-            # Notify on option values
-            # "connection_error_to_connected"
-            # "connection_error_to_connection_error"
-            # "status_code"
-            # "content_hash"
-            # "url"
-            # "headers"
-            # "links"
-            # "is_redirect"
-            # "is_permanent_redirect"
-            # "reason"
-            # "history"
-            # "elapsed"
         }
 
-        # object_id = self.__sites.insert_one(
-        #     {"name": site_name, "url": site_url, **private_site_args, **kwargs}
-        # ).inserted_id
-        # return str(object_id)
-        return "Not saved"
+        object_id = self.__sites.insert_one(
+            {"name": site_name, "url": site_url, **private_site_args, **kwargs}
+        ).inserted_id
+        return str(object_id)
 
     def disable_site(self, site_id) -> bool:
         """
