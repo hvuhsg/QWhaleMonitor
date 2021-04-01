@@ -1,3 +1,4 @@
+from pydantic import AnyHttpUrl
 from fastapi import APIRouter, Depends, HTTPException, status, Request
 
 from db import DB
@@ -27,7 +28,7 @@ def verify_site_id(site_id: str, token=Depends(verify_token)) -> int:
 @api_app.put("/site")
 def add_site(
         site_name: str,
-        site_url: str,
+        site_url: AnyHttpUrl,
         timeout: float = None,
         scan_interval: float = None,
         token: str = Depends(verify_token),
