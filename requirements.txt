@@ -9,3 +9,4 @@ itsdangerous
 httpx
 aiofiles
 python-dotenv
+qwhale-logs-client

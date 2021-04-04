@@ -2,6 +2,7 @@ import os
 from fastapi import FastAPI
 from starlette.middleware.sessions import SessionMiddleware
 from dotenv import load_dotenv
+from qwhale_logs_client import init
 
 from provider.main import provider_login_app
 from api import api_app
@@ -26,6 +27,7 @@ def startup():
     DB(DB_FILE_NAME)  # Create singleton instance
     scanner = Scanner(db=DB.get_instance())
     scanner.start()  # Start Scanning Thread
+    init(token="VLUysQ9G7kVyaLj-fQWY7kYhZmA", project="monitor")
 
 
 @app.on_event("shutdown")
