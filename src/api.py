@@ -1,5 +1,5 @@
 from pydantic import AnyHttpUrl
-from fastapi import APIRouter, Depends, HTTPException, status, Request
+from fastapi import APIRouter, Depends, HTTPException, status, Request, Query
 from enum import Enum
 
 from db import DB
@@ -8,7 +8,7 @@ from db import DB
 api_app = APIRouter(tags=["api"])
 
 
-def verify_token(request: Request, token: str = None) -> str:
+def verify_token(request: Request, token: str = Query(default=None, description="Api token", title="API TOKEN")) -> str:
     db = DB.get_instance()
     if token is None and request.session.get("user", None) is None:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="You must specify token or valid session")
@@ -27,9 +27,12 @@ def verify_site_id(site_id: str, token=Depends(verify_token)) -> int:
 
 
 class Filter(str, Enum):
+    """
+    Filed to filter (notify on change)
+    """
+    status_code = "status_code"
     connection_error_to_connected = "connection_error_to_connected"
     connection_error_to_connection_error = "connection_error_to_connection_error"
-    status_code = "status_code"
     content_hash = "content_hash"
     url = "url"
     headers = "headers"
@@ -49,7 +52,7 @@ def add_site(
         filter2: Filter = None,
         filter3: Filter = None,
         timeout: float = None,
-        scan_interval: float = None,
+        scan_interval: float = Query(None, description="Scan site every X minutes"),
         token: str = Depends(verify_token),
 ) -> int:
     """
