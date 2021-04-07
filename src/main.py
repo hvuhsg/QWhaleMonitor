@@ -1,6 +1,7 @@
 import os
 from fastapi import FastAPI
 from starlette.middleware.sessions import SessionMiddleware
+from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 from qwhale_logs_client import init
 
@@ -15,6 +16,13 @@ load_dotenv(".env")
 session_secret = os.getenv("SESSION_SECRET")
 
 app = FastAPI()
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 app.add_middleware(SessionMiddleware, secret_key=session_secret)
 app.include_router(provider_login_app)
 app.include_router(api_app)
