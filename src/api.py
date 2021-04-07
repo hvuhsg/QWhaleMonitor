@@ -44,7 +44,7 @@ class Filter(str, Enum):
     elapsed = "elapsed"
 
 
-@api_app.put("/site")
+@api_app.api_route("/site", methods=["PUT", "POST"])
 def add_site(
         site_name: str,
         site_url: AnyHttpUrl,
