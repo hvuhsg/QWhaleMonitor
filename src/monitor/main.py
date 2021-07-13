@@ -94,21 +94,13 @@ class Scanner(Thread):
         return diff if need_notify else None
 
     def _send_notification(self, site, notification):
-        p = get_notifier('pushover')
-        p.notify(
-            user="ufg86adtpmq93zk9ue8d956rd7fjvc",
-            token="a3domhu4ph84tnezcpka5umx7jvfy2",
-            message=f"{notification}",
-            url=site["url"],
-            priority=1
-        )
         p = get_notifier("slack")
         p.notify(
             webhook_url="https://hooks.slack.com/services/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",
             message=f"{notification}\nurl: {site['url']}"
         )
         p = NotifierClient(app_token="app")
-        p.send_notification(user_token="6xrEemu8pqShpA", title="MonitorAlert", body=f"{notification}", url=site["url"])
+        p.send_notification(user_token="qRciMQ9zRq0YLA", title="MonitorAlert", body=f"{notification}", url=site["url"])
 
     def _handle_site_scanning(self, site):
         try:
